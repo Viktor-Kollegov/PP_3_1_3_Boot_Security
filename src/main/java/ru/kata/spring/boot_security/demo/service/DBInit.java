@@ -25,6 +25,12 @@ public class DBInit {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
+    @PostConstruct
+    public void init() {
+        makeAdmin();
+        makeTestUser();
+    }
+
     public Set<Role> RolesInit() {
         Role adminRole = new Role(1L, "ROLE_ADMIN");
         Role userRole = new Role(2L, "ROLE_USER");
@@ -35,39 +41,32 @@ public class DBInit {
         return roles;
     }
 
-    @PostConstruct
-    public boolean makeAdmin() {
-        User user = userRepository.findByUsername("admin");
-        if (user != null) {
-            return false;
+    public void makeAdmin() {
+        if (userRepository.findByUsername("admin") == null) {
+            User admin = User.builder()
+                    .username("admin")
+                    .firstName("Peter")
+                    .lastName("Wallis")
+                    .email("test@mail.ru")
+                    .password(bCryptPasswordEncoder.encode("admin"))
+                    .roles(RolesInit())
+                    .build();
+            userRepository.save(admin);
         }
-        User admin = User.builder()
-                .firstName("Peter")
-                .lastName("Wallis")
-                .email("test@mail.ru")
-                .password(bCryptPasswordEncoder.encode("admin"))
-                .roles(RolesInit())
-                .username("admin")
-                .build();
-        userRepository.save(admin);
-        return true;
     }
 
-    @PostConstruct
-    public boolean makeTestUser() {
-        User user = userRepository.findByUsername("user");
-        if (user != null) {
-            return false;
+    public void makeTestUser() {
+        if (userRepository.findByUsername("user") == null) {
+            User testUser = User.builder()
+                    .username("user")
+                    .firstName("John")
+                    .lastName("Titor")
+                    .email("test2@mail.ru")
+                    .password(bCryptPasswordEncoder.encode("user"))
+                    .roles(Collections.singleton(new Role(2L, "ROLE_USER")))
+                    .build();
+            userRepository.save(testUser);
         }
-        User testUser = User.builder()
-                .firstName("John")
-                .lastName("Titor")
-                .email("test2@mail.ru")
-                .password(bCryptPasswordEncoder.encode("user"))
-                .roles(Collections.singleton(new Role(2L, "ROLE_USER")))
-                .username("user")
-                .build();
-        userRepository.save(testUser);
-        return true;
     }
+
 }
