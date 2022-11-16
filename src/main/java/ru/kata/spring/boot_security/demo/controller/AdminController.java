@@ -97,11 +97,5 @@ public class AdminController {
         return "redirect:/admin";
     }
 
-    //С этим методом выводится окно с уточнением, действительно ли мы хотим разлогиниться.
-//    @PostMapping("/logout")
-//    public String logout() {
-//        return "redirect:/logout";
-//    }
-
 }
 
