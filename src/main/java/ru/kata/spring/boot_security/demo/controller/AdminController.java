@@ -35,8 +35,11 @@ public class AdminController {
     }
 
     @PostMapping()
-    public String createUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult) {
+    public String createUser(@ModelAttribute("user") @Valid User user, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
+            return "create_users";
+        } else if (!userService.saveUser(user)) {
+            model.addAttribute("error", "User with the specified username already exists");
             return "create_users";
         }
         userService.saveUser(user);
@@ -69,7 +72,12 @@ public class AdminController {
                 newPassword = previousPassword;
             }
             UpdatedUser.setPassword(newPassword);
-            userService.updateUser(UpdatedUser);
+            try {
+                userService.updateUser(UpdatedUser);
+            } catch (Exception e) { //SQLIntegrityConstraintViolationException
+                model.addAttribute("error", "User with the specified username already exists");
+                return "edit_users";
+            }
         } else {
             model.addAttribute("error", "Current password mismatch");
             return "edit_users";
